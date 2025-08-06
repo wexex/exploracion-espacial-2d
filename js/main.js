@@ -1,16 +1,24 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-
 const width = canvas.width;
 const height = canvas.height;
 
-// Player position and speed
-let player = { x: 0, y: 0, speed: 3 };
+// Player object with inertia
+const player = {
+    x: 0,
+    y: 0,
+    angle: 0,
+    velX: 0,
+    velY: 0,
+    rotationSpeed: 0.05,
+    acceleration: 0.1,
+    friction: 0.99
+};
 
 // Keyboard input state
 const keys = {};
 
-// Generate stars in a large area around the origin
+// Generate stars
 const stars = [];
 const STAR_COUNT = 200;
 for (let i = 0; i < STAR_COUNT; i++) {
@@ -23,32 +31,44 @@ for (let i = 0; i < STAR_COUNT; i++) {
 document.addEventListener('keydown', (e) => {
     keys[e.code] = true;
 });
-
 document.addEventListener('keyup', (e) => {
     keys[e.code] = false;
 });
 
 function update() {
-    if (keys['ArrowUp'] || keys['KeyW']) {
-        player.y -= player.speed;
-    }
-    if (keys['ArrowDown'] || keys['KeyS']) {
-        player.y += player.speed;
-    }
+    // Rotate left/right
     if (keys['ArrowLeft'] || keys['KeyA']) {
-        player.x -= player.speed;
+        player.angle -= player.rotationSpeed;
     }
     if (keys['ArrowRight'] || keys['KeyD']) {
-        player.x += player.speed;
+        player.angle += player.rotationSpeed;
     }
+
+    // Apply thrust forward/backward
+    if (keys['ArrowUp'] || keys['KeyW']) {
+        player.velX += Math.cos(player.angle) * player.acceleration;
+        player.velY += Math.sin(player.angle) * player.acceleration;
+    }
+    if (keys['ArrowDown'] || keys['KeyS']) {
+        player.velX -= Math.cos(player.angle) * player.acceleration;
+        player.velY -= Math.sin(player.angle) * player.acceleration;
+    }
+
+    // Update position with velocity
+    player.x += player.velX;
+    player.y += player.velY;
+
+    // Apply friction
+    player.velX *= player.friction;
+    player.velY *= player.friction;
 }
 
 function draw() {
-    // Clear the canvas
+    // Clear canvas
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, width, height);
 
-    // Draw stars relative to the player position
+    // Draw stars relative to player position
     ctx.fillStyle = 'white';
     for (const star of stars) {
         const screenX = (star.x - player.x) + width / 2;
@@ -58,14 +78,18 @@ function draw() {
         }
     }
 
-    // Draw the player's ship as a small triangle
+    // Draw player's ship rotated
+    ctx.save();
+    ctx.translate(width / 2, height / 2);
+    ctx.rotate(player.angle);
     ctx.fillStyle = 'red';
     ctx.beginPath();
-    ctx.moveTo(width / 2, height / 2 - 10);
-    ctx.lineTo(width / 2 - 6, height / 2 + 8);
-    ctx.lineTo(width / 2 + 6, height / 2 + 8);
+    ctx.moveTo(15, 0);
+    ctx.lineTo(-10, -7);
+    ctx.lineTo(-10, 7);
     ctx.closePath();
     ctx.fill();
+    ctx.restore();
 }
 
 function loop() {
