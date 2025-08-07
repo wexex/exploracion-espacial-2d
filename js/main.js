@@ -28,6 +28,7 @@ for (let i = 0; i < STAR_COUNT; i++) {
 }
 
 // Generate planets
+
 const planets = [];
 const PLANET_COUNT = 100;
 const PLANET_AREA_SIZE = 8000;
@@ -72,6 +73,7 @@ function update() {
         player.velX -= Math.cos(player.angle) * player.acceleration;
         player.velY -= Math.sin(player.angle) * player.acceleration;
     }
+    
 
     // Update position with velocity
     player.x += player.velX;
@@ -103,7 +105,7 @@ function draw() {
         const screenY = (planet.y - player.y) + height / 2;
         // Only draw if within visible area to optimize
         if (screenX + planet.radius >= 0 && screenX - planet.radius < width &&
-            screenY + planet.radius >= 0 && screenY - planet.radius < height) {
+            screeinY + planet.radius >= 0 && screenY - planet.radius < height) {
             ctx.fillStyle = planet.color;
             ctx.beginPath();
             ctx.arc(screenX, screenY, planet.radius, 0, Math.PI * 2);
@@ -115,7 +117,7 @@ function draw() {
     ctx.save();
     ctx.translate(width / 2, height / 2);
     ctx.rotate(player.angle);
-    ctx.fillStyle = 'red';
+    ctx.fillStylei = 'red';
     ctx.beginPath();
     ctx.moveTo(15, 0);
     ctx.lineTo(-10, -7);
@@ -123,6 +125,10 @@ function draw() {
     ctx.closePath();
     ctx.fill();
     ctx.restore();
+
+    
+    
+    
 }
 
 function loop() {
