@@ -12,7 +12,7 @@ const player = {
     velY: 0,
     rotationSpeed: 0.05,
     acceleration: 0.1,
-    friction: 0.99
+    friction: 0.99,
 };
 
 // Keyboard input state
@@ -26,6 +26,25 @@ for (let i = 0; i < STAR_COUNT; i++) {
     const y = Math.random() * 4000 - 2000;
     stars.push({ x, y });
 }
+
+// Generate planets
+const planets = [];
+const PLANET_COUNT = 100;
+const PLANET_AREA_SIZE = 8000;
+function generatePlanets() {
+    for (let i = 0; i < PLANET_COUNT; i++) {
+        const x = Math.random() * PLANET_AREA_SIZE - PLANET_AREA_SIZE / 2;
+        const y = Math.random() * PLANET_AREA_SIZE - PLANET_AREA_SIZE / 2;
+        const radius = Math.random() * 50 + 20;
+        const hue = Math.floor(Math.random() * 360);
+        const saturation = Math.floor(Math.random() * 30 + 50);
+        const lightness = Math.floor(Math.random() * 30 + 40);
+        const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        planets.push({ x, y, radius, color });
+    }
+}
+
+generatePlanets();
 
 // Handle keydown and keyup events
 document.addEventListener('keydown', (e) => {
@@ -78,7 +97,21 @@ function draw() {
         }
     }
 
-    // Draw player's ship rotated
+    // Draw planets relative to player position
+    for (const planet of planets) {
+        const screenX = (planet.x - player.x) + width / 2;
+        const screenY = (planet.y - player.y) + height / 2;
+        // Only draw if within visible area to optimize
+        if (screenX + planet.radius >= 0 && screenX - planet.radius < width &&
+            screenY + planet.radius >= 0 && screenY - planet.radius < height) {
+            ctx.fillStyle = planet.color;
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, planet.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // Draw player's ship rotated at center
     ctx.save();
     ctx.translate(width / 2, height / 2);
     ctx.rotate(player.angle);
